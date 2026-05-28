@@ -1,4 +1,4 @@
-const API_KEY = 'f757d06625abe40baeca4c9ec21ccb16'; // Free tier API key
+const API_KEY = 'OPENWEATHERMAP_API_KEY'; // Free tier API key
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // DOM Elements
