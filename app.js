@@ -1,5 +1,6 @@
-const API_KEY = 'OPENWEATHERMAP_API_KEY'; // Free tier API key
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-deployed-backend.com' 
+  : 'http://localhost:5000';
 
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
@@ -29,10 +30,15 @@ async function searchWeather() {
     hideError();
     
     try {
-        // Get coordinates from city name
+        // Get coordinates from city name via proxy
         const geoResponse = await fetch(
-            `${BASE_URL}/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
+            `${API_BASE_URL}/api/geo?q=${encodeURIComponent(city)}&limit=1`
         );
+        
+        if (!geoResponse.ok) {
+            throw new Error(`Geo API error: ${geoResponse.status}`);
+        }
+        
         const geoData = await geoResponse.json();
         
         if (!geoData.length) {
@@ -74,15 +80,17 @@ function getGeolocation() {
     );
 }
 
-// Fetch Weather Data
+// Fetch Weather Data via Proxy
 async function fetchWeatherData(lat, lon) {
     try {
-        // Fetch current weather and forecast
+        // Fetch current weather via proxy
         const weatherResponse = await fetch(
-            `${BASE_URL}/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+            `${API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`
         );
+        
+        // Fetch forecast via proxy
         const forecastResponse = await fetch(
-            `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+            `${API_BASE_URL}/api/forecast?lat=${lat}&lon=${lon}`
         );
         
         if (!weatherResponse.ok || !forecastResponse.ok) {
@@ -132,7 +140,7 @@ function displayCurrentWeather(data) {
     const iconUrl = `https://openweathermap.org/img/wn/${icon}@4x.png`;
     document.getElementById('weatherIcon').src = iconUrl;
     
-    // UV Index (if available in data)
+    // UV Index
     const uviElement = document.getElementById('uvi');
     uviElement.textContent = 'N/A';
 }
